@@ -1,0 +1,30 @@
+The minimum and maximum for data1:
+r
+0.000121787925
+0.09205712
+phi
+2.5822343e-05
+6.282976068843048
+The minimum and maximum for data2:
+z
+5.330511e-07
+0.33999896
+phi
+1.5799129e-05
+6.283183397549486
+The minimum and maximum for data3:
+z
+0.22225001
+0.33999962
+phi
+0.39365917
+6.283183102349561
+The minimum and maximum for data4:
+r
+8.728371e-05
+0.14962296
+phi
+0.000737059
+6.2824410079149615
+The total time cost:
+0:01:35.627730

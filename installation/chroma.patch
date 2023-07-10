@@ -1,0 +1,59 @@
+diff -uNr chroma/chroma/geometry.py chroma_mod/chroma/geometry.py
+--- chroma/chroma/geometry.py
++++ chroma_mod/chroma/geometry.py
+@@ -351,7 +351,7 @@
+ 
+         for i, solid in enumerate(self.solids):
+             vertices[nv[i]:nv[i+1]] = \
+-                np.inner(solid.mesh.vertices, self.solid_rotations[i]) + self.solid_displacements[i]
++                np.dot(solid.mesh.vertices, self.solid_rotations[i]) + self.solid_displacements[i]
+             triangles[nt[i]:nt[i+1]] = solid.mesh.triangles + nv[i]
+ 
+         # Different solids are very unlikely to share vertices, so this goes much faster
+diff -uNr chroma/chroma/sim.py chroma_mod/chroma/sim.py
+--- chroma/chroma/sim.py
++++ chroma_mod/chroma/sim.py
+@@ -16,7 +16,11 @@
+ def pick_seed():
+     """Returns a seed for a random number generator selected using
+     a mixture of the current time and the current process ID."""
+-    return int(time.time()) ^ (os.getpid() << 16)
++    s = int(time.time()) ^ (os.getpid() << 16)
++    while (s>2 ** 32-1):
++        s = s>>1
++        print('Seed overflow!')
++    return s
+ 
+ class Simulation(object):
+     def __init__(self, detector, seed=None, cuda_device=None, particle_tracking=False, photon_tracking=False,
+diff -uNr chroma/setup.py chroma_mod/setup.py
+--- chroma/setup.py
++++ chroma_mod/setup.py
+@@ -5,13 +5,13 @@
+ libraries = ['boost_python','boost_numpy']
+ extra_objects = []
+ 
+-if 'VIRTUAL_ENV' in os.environ:
++if 'CONDA_PREFIX' in os.environ:
+     # use local copy of boost libs
+-    boost_lib = os.path.join(os.environ['VIRTUAL_ENV'],'lib','libboost_python.so')
++    boost_lib = os.path.join(os.environ['CONDA_PREFIX'],'lib','libboost_python.so')
+     if os.path.exists(boost_lib):
+         extra_objects.append(boost_lib)
+         libraries.remove('boost_python')
+-    boost_lib = os.path.join(os.environ['VIRTUAL_ENV'],'lib','libboost_numpy.so')
++    boost_lib = os.path.join(os.environ['CONDA_PREFIX'],'lib','libboost_numpy.so')
+     if os.path.exists(boost_lib):
+         extra_objects.append(boost_lib)
+         libraries.remove('boost_numpy')
+@@ -42,8 +42,8 @@
+ 
+ #####
+ 
+-if 'VIRTUAL_ENV' in os.environ:
+-    include_dirs.append(os.path.join(os.environ['VIRTUAL_ENV'], 'include'))
++if 'CONDA_PREFIX' in os.environ:
++    include_dirs.append(os.path.join(os.environ['CONDA_PREFIX'], 'include'))
+ try:
+     import numpy.distutils
+     include_dirs += numpy.distutils.misc_util.get_numpy_include_dirs()
